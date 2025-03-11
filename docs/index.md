@@ -1,4 +1,4 @@
-# Vinculando Segmentos a Clientes na API CheckMob
+# Documentação API Checkmob
 
 ## Criando um Cliente com um Segmento
 
@@ -25,10 +25,11 @@ curl -X 'POST' \
 #### **Resposta Esperada**
 ```json
 {
-  "segments": [
+  "success": true,
+  "data": [
     {
-      "id": 214513,
-      "name": "Segmento Exemplo"
+      "id": 179022,
+      "name": "Segmento Teste"
     }
   ]
 }
@@ -58,7 +59,7 @@ curl -X 'POST' \
    "responsiblePhone":"+55 11 98888-8888",
    "active":true,
    "idsSegment":[
-      214513
+      179022
    ]
 }'
 ```
@@ -78,20 +79,9 @@ curl -X 'POST' \
   -H 'Authorization: bearer SEU_TOKEN_AQUI' \  
   -H 'Content-Type: application/json' \  
   -d '{
-  "idSegment": 182349,
+  "idSegment": 179022,
   "idsClients": [
     37897513
   ]
 }'
 ```
-
-### **Resposta Esperada**
-```json
-{
-  "success": true,
-  "message": "Segment successfully linked to client(s)."
-}
-```
-
-Com essa abordagem, você pode garantir que os clientes estejam sempre vinculados aos segmentos corretos na sua base de dados.
-
