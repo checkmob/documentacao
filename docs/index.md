@@ -1,5 +1,43 @@
 # Documentação API Checkmob
 
+
+## **1. Autenticação**
+Para utilizar a API da Checkmob, é necessário estar autenticado. O primeiro passo é obter um **token de acesso**, que será utilizado em todas as requisições subsequentes.
+
+### **1.1. Obtendo o Token de Autenticação**
+Para gerar um token, utilize o endpoint `/api/v1/auth/login` enviando as credenciais de login.
+
+#### **Exemplo de Requisição - Obter Token**
+```sh
+curl -X 'POST' \  
+  'https://api-integration.checkmob.com/api/v1/auth/login' \  
+  -H 'accept: application/json' \  
+  -H 'Accept-Language: en-US' \  
+  -H 'Content-Type: application/json' \  
+  -d '{
+  "login": "seu_usuario",
+  "password": "sua_senha"
+}'
+```
+
+#### **Resposta Esperada**
+```json
+{
+  "success": true,
+  "data": {
+    "token": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZENoZWNrbW9iIjoiNzA0MDciLCJJZFVzZXIiOiIyNTM1ODciLCJOYW1lIjoiRmVsaXBlIFBvcnRlbGEiLCJFbWFpbCI6ImZlbGlwZS5wb3J0ZWxhQGNoZWNrbW9iLmNvbSIsIm5iZiI6MTc0MTc4MjAwNiwiZXhwIjoxNzQ0NDEwMDA2LCJpYXQiOjE3NDE3ODIwMDYsImlzcyI6IkNIRUNLTU9CIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3QifQ.ycTH1evq5O6Ld0gCUVh3rnLOkaHcOZ3zdBpjV_XMFtY",
+      "expiresIn": "2025-04-11T22:20:06Z",
+      "tokenType": "Bearer"
+    }
+  }
+}
+```
+
+O campo `token` contém o **JWT (JSON Web Token)**, que deve ser incluído no cabeçalho `Authorization` para todas as requisições à API.
+
+---
+
 ## Criando um Cliente com um Segmento
 
 Para criar um cliente e vinculá-lo a um segmento, é necessário enviar o **ID do segmento** dentro do array `idsSegment` na requisição **POST** para `/api/v1/client/post`.
