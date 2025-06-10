@@ -278,13 +278,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#documentacao" class="md-nav__link">
+  <a href="#documentacao-auxiliar" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentação
+      Documentação Auxiliar
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Documentação">
+    <nav class="md-nav" aria-label="Documentação Auxiliar">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -371,6 +371,39 @@
       3. Dicas Importantes
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-codigos-de-erro" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Códigos de Erro
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Códigos de Erro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-de-resposta-de-erro" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemplo de Resposta de Erro
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dicas-para-tratamento-de-erros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dicas para Tratamento de Erros
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -414,13 +447,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#documentacao" class="md-nav__link">
+  <a href="#documentacao-auxiliar" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentação
+      Documentação Auxiliar
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Documentação">
+    <nav class="md-nav" aria-label="Documentação Auxiliar">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -510,6 +543,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#4-codigos-de-erro" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Códigos de Erro
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Códigos de Erro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exemplo-de-resposta-de-erro" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemplo de Resposta de Erro
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dicas-para-tratamento-de-erros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dicas para Tratamento de Erros
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -532,8 +598,17 @@
 
 
 <h1 id="documentacao-api">Documentação API</h1>
-<h2 id="documentacao"><strong>Documentação</strong></h2>
+<h2 id="documentacao-auxiliar"><strong>Documentação Auxiliar</strong></h2>
 <p>Esta documentação auxiliar tem como objetivo guiar você, passo a passo, na integração com a API da Checkmob. Abordaremos desde a autenticação até a manipulação de dados, incluindo a paginação de resultados.</p>
+<p>Para uma experiência mais interativa e completa, você pode acessar nossa documentação Swagger em: <a href="https://api-integration.checkmob.com/index.html">https://api-integration.checkmob.com/index.html</a></p>
+<p>A documentação Swagger oferece uma interface amigável onde você pode:</p>
+<ul>
+<li>Testar as requisições diretamente no navegador</li>
+<li>Visualizar todos os endpoints disponíveis</li>
+<li>Ver exemplos de requisições e respostas</li>
+<li>Explorar os modelos de dados</li>
+<li>Testar diferentes parâmetros</li>
+</ul>
 <h3 id="11-autenticacao"><strong>1.1. Autenticação</strong></h3>
 <p>Para interagir com a API da Checkmob, é imprescindível estar autenticado. O primeiro passo é obter um token de acesso, que funcionará como sua credencial em todas as requisições subsequentes.</p>
 <h4 id="obtendo-o-token-de-autenticacao"><strong>Obtendo o Token de Autenticação</strong></h4>
@@ -597,11 +672,27 @@
   }'
 </code></pre>
 <p>Parâmetros do corpo da requisição</p>
-<p>Parâmetro   Descrição   Exemplo
-numberOfRows    Quantidade máxima de registros que deseja receber na resposta.  500
-numberOfRowsSkipped Quantidade de registros a pular (útil para paginação).  0
-search  Termo para filtrar os resultados (opcional).    "" (vazio)
-active  Filtra clientes ativos (true) ou inativos (false).  true</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Descrição</th>
+<th>Exemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numberOfRows</td>
+<td>Quantidade máxima de registros que deseja receber na resposta.</td>
+<td>500</td>
+</tr>
+<tr>
+<td>numberOfRowsSkipped</td>
+<td>Quantidade de registros para paginar.</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
 <h3 id="22-como-navegar-entre-paginas"><strong>2.2. Como navegar entre páginas</strong></h3>
 <ul>
 <li>
@@ -632,6 +723,60 @@ active  Filtra clientes ativos (true) ou inativos (false).  true</p>
 <p>Verifique as mensagens de erro e códigos HTTP para tratar falhas na integração.</p>
 </li>
 </ul>
+<h3 id="4-codigos-de-erro"><strong>4. Códigos de Erro</strong></h3>
+<p>A API utiliza códigos HTTP padrão para indicar o status das requisições. Abaixo estão os principais códigos que você pode encontrar:</p>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Descrição</th>
+<th>Ação Recomendada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>Sucesso</td>
+<td>A requisição foi processada com sucesso</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Requisição Inválida</td>
+<td>Verifique os parâmetros enviados e o formato da requisição</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Não Autorizado</td>
+<td>Token inválido ou expirado. Faça login novamente para obter um novo token</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Muitas Requisições</td>
+<td>Você atingiu o limite de requisições. Aguarde antes de tentar novamente</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Erro Interno do Servidor</td>
+<td>Ocorreu um erro inesperado. Entre em contato com o suporte</td>
+</tr>
+</tbody>
+</table>
+<h4 id="exemplo-de-resposta-de-erro"><strong>Exemplo de Resposta de Erro</strong></h4>
+<pre><code class="language-json">{
+  &quot;success&quot;: false,
+  &quot;error&quot;: {
+    &quot;code&quot;: 400,
+    &quot;message&quot;: &quot;Parâmetros inválidos na requisição&quot;
+  }
+}
+</code></pre>
+<h4 id="dicas-para-tratamento-de-erros"><strong>Dicas para Tratamento de Erros</strong></h4>
+<ol>
+<li>Em caso de erro, leia atentamente a mensagem e os detalhes fornecidos</li>
+<li>Para erros 401, implemente uma lógica de renovação automática do token</li>
+<li>Para erros 429, implemente um mecanismo de retry com backoff exponencial</li>
+<li>Mantenha logs dos erros para facilitar o diagnóstico de problemas</li>
+</ol>
 
 
 
