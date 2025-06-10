@@ -1,19 +1,25 @@
-# Documentação API Checkmob
+# Documentação API 
 
 
-## **1. Autenticação**
-Para utilizar a API da Checkmob, é necessário estar autenticado. O primeiro passo é obter um **token de acesso**, que será utilizado em todas as requisições subsequentes.
+## **Documentação**
+Esta documentação auxiliar tem como objetivo guiar você, passo a passo, na integração com a API da Checkmob. Abordaremos desde a autenticação até a manipulação de dados, incluindo a paginação de resultados.
 
-### **1.1. Obtendo o Token de Autenticação**
-Para gerar um token, utilize o endpoint `/api/v1/auth/login` enviando as credenciais de login.
+### **1.1. Autenticação**
+Para interagir com a API da Checkmob, é imprescindível estar autenticado. O primeiro passo é obter um token de acesso, que funcionará como sua credencial em todas as requisições subsequentes.
+
+#### **Obtendo o Token de Autenticação**
+Para gerar seu token, você precisará enviar suas credenciais de login para o endpoint /api/v1/auth/login.
 
 #### **Exemplo de Requisição - Obter Token**
+
+No exemplo abaixo, utilizamos o curl para demonstrar como realizar essa requisição. Lembre-se de substituir "seu_usuario" e "sua_senha" pelas suas credenciais reais.
+
 ```sh
-curl -X 'POST' \  
-  'https://api-integration.checkmob.com/api/v1/auth/login' \  
-  -H 'accept: application/json' \  
-  -H 'Accept-Language: en-US' \  
-  -H 'Content-Type: application/json' \  
+curl -X 'POST' \
+  'https://api-integration.checkmob.com/api/v1/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Accept-Language: en-US' \
+  -H 'Content-Type: application/json' \
   -d '{
   "login": "seu_usuario",
   "password": "sua_senha"
@@ -21,12 +27,15 @@ curl -X 'POST' \
 ```
 
 #### **Resposta Esperada**
+Após enviar a requisição, você receberá uma resposta similar a esta:
+
+
 ```json
 {
   "success": true,
   "data": {
     "token": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZENoZWNrbW9iIjoiNzA0MDciLCJJZFVzZXIiOiIyNTM1ODciLCJOYW1lIjoiRmVsaXBlIFBvcnRlbGEiLCJFbWFpbCI6ImZlbGlwZS5wb3J0ZWxhQGNoZWNrbW9iLmNvbSIsIm5iZiI6MTc0MTc4MjAwNiwiZXhwIjoxNzQ0NDEwMDA2LCJpYXQiOjE3NDE3ODIwMDYsImlzcyI6IkNIRUNLTU9CIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3QifQ.ycTH1evq5O6Ld0gCUVh3rnLOkaHcOZ3zdBpjV_XMFtY",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZENoZWNrbW9iIjoiNzA0MDciLCJJZFVzZXIiOiIyNTM1ODciLCJOYW1lIjoiVXN1YXJpbyBNb2NrIHN0cmluZyIsIkVtYWlsIjoiaW50ZWdyYWNhb0BjaGVja21vYi5jb20iLCJuYmYiOjE3NDEyMzQ1NjcsImV4cCI6MTc0MjM0NTY3OCwiaWF0IjoxNzQxMjM0NTY3LCJpc3MiOiJDSFVDWU1PRiIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0In0.Um_Token_Exemplo_Para_Documentacao_Apenas",
       "expiresIn": "2025-04-11T22:20:06Z",
       "tokenType": "Bearer"
     }
@@ -34,92 +43,68 @@ curl -X 'POST' \
 }
 ```
 
-O campo `token` contém o **JWT (JSON Web Token)**, que deve ser incluído no cabeçalho `Authorization` para todas as requisições à API.
+- O campo **accessToken** contém o JWT que será usado para autenticação.
+
+- O campo **expiresIn** indica a data e hora de expiração do token.
+
+- O campo **tokenType** geralmente é Bearer e indica o tipo do token.
 
 ---
+### **1.2. Utilizando o Token nas Requisições**
 
-## Criando um Cliente com um Segmento
+Depois de obter o token, você deve incluí-lo no cabeçalho Authorization de todas as requisições para os demais endpoints da API.
 
-Para criar um cliente e vinculá-lo a um segmento, é necessário enviar o **ID do segmento** dentro do array `idsSegment` na requisição **POST** para `/api/v1/client/post`.
+A forma correta é:
 
-### **Obtendo o ID do Segmento**
-Antes de criar o cliente, você pode listar os segmentos disponíveis na base de dados utilizando o endpoint `/api/v1/segment/list`.
-
-#### **Exemplo de Requisição - Listar Segmentos**
-```sh
-curl -X 'POST' \  
-  'https://api-integration.checkmob.com/api/v1/segment/list' \  
-  -H 'accept: text/plain' \  
-  -H 'Accept-Language: en-US' \  
-  -H 'Authorization: bearer SEU_TOKEN_AQUI' \  
-  -H 'Content-Type: application/json' \  
-  -d '{
-  "numberOfRows": 10,
-  "numberOfRowsSkipped": 0,
-  "active": true
-}'
-```
-
-#### **Resposta Esperada**
 ```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 179022,
-      "name": "Segmento Teste"
-    }
-  ]
-}
+Authorization: Bearer <seu_access_token>
 ```
 
-Após obter o **ID do segmento**, inclua-o no array `idsSegment` ao criar o cliente.
+### **2.0. Fazendo Requisições com Paginação**
 
-### **Criando um Cliente Vinculado a um Segmento**
+Alguns endpoints, como a listagem de clientes, suportam paginação para controlar o volume de dados retornados.
 
-#### **Exemplo de Requisição - Criar Cliente**
-```sh
-curl -X 'POST' \  
-  'https://api-integration.checkmob.com/api/v1/client/post' \  
-  -H 'accept: application/json' \  
-  -H 'Authorization: bearer SEU_TOKEN_AQUI' \  
-  -H 'Content-Type: application/json' \  
+### **2.1. Exemplo: Listar Clientes com Paginação**
+
+```json
+curl -X POST \
+  'https://api-integration.checkmob.com/api/v1/client/list' \
+  -H 'accept: application/json' \
+  -H 'Accept-Language: en-US' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exemplo.token.alterado' \
+  -H 'Content-Type: application/json' \
   -d '{
-   "name":"John Doe",
-   "code":12345,
-   "type":"F",
-   "cpf":"123.456.789-00",
-   "email":"johndoe@example.com",
-   "phone":"+55 11 4002-8922",
-   "cellphone":"+55 11 99999-9999",
-   "role":"Manager",
-   "responsible":"Jane Doe",
-   "responsiblePhone":"+55 11 98888-8888",
-   "active":true,
-   "idsSegment":[
-      179022
-   ]
-}'
+    "numberOfRows": 500,
+    "numberOfRowsSkipped": 0,
+    "search": "",
+    "active": true
+  }'
 ```
+Parâmetros do corpo da requisição
 
-Se a requisição for bem-sucedida, o cliente será criado e vinculado ao segmento especificado.
+Parâmetro	Descrição	Exemplo
+numberOfRows	Quantidade máxima de registros que deseja receber na resposta.	500
+numberOfRowsSkipped	Quantidade de registros a pular (útil para paginação).	0
+search	Termo para filtrar os resultados (opcional).	"" (vazio)
+active	Filtra clientes ativos (true) ou inativos (false).	true
 
----
 
-## **Vinculando um Segmento a um Cliente Existente**
-Se o cliente já existir e você deseja vinculá-lo a um novo segmento, utilize o endpoint `/api/v1/segment/linkSegmentToClient`.
+### **2.2. Como navegar entre páginas**
 
-### **Exemplo de Requisição - Vincular Segmento a Cliente**
-```sh
-curl -X 'POST' \  
-  'https://api-integration.checkmob.com/api/v1/segment/linkSegmentToClient' \  
-  -H 'accept: application/json' \  
-  -H 'Authorization: bearer SEU_TOKEN_AQUI' \  
-  -H 'Content-Type: application/json' \  
-  -d '{
-  "idSegment": 179022,
-  "idsClients": [
-    37897513
-  ]
-}'
-```
+- Para obter a primeira página, envie numberOfRowsSkipped como 0.
+
+- Para a segunda página, envie numberOfRowsSkipped igual a numberOfRows (ex: 500).
+
+- Para a terceira página, envie numberOfRowsSkipped igual a numberOfRows * 2 (ex: 1000).
+
+- E assim por diante.
+
+### **3. Dicas Importantes**
+
+- Sempre use HTTPS para garantir segurança na transmissão dos dados.
+
+- Não compartilhe seu token com terceiros, pois ele garante acesso à sua conta.
+
+- Quando o token expirar, será necessário obter um novo token via login.
+
+- Verifique as mensagens de erro e códigos HTTP para tratar falhas na integração.

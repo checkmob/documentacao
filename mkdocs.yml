@@ -1,1 +1,13 @@
-site_name: Checkmob Documentação
+site_name: API Checkmob
+theme:
+  name: material
+  palette:
+    primary: black
+    accent: black
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy # Adicionado para permitir copiar o código
+  icon:
+    logo: ""
