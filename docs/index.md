@@ -1,8 +1,19 @@
 # Documentação API 
 
 
-## **Documentação**
+## **Documentação Auxiliar**
 Esta documentação auxiliar tem como objetivo guiar você, passo a passo, na integração com a API da Checkmob. Abordaremos desde a autenticação até a manipulação de dados, incluindo a paginação de resultados.
+
+Para uma experiência mais interativa e completa, você pode acessar nossa documentação Swagger em: [https://api-integration.checkmob.com/index.html](https://api-integration.checkmob.com/index.html)
+
+A documentação Swagger oferece uma interface amigável onde você pode:
+
+- Testar as requisições diretamente no navegador
+- Visualizar todos os endpoints disponíveis
+- Ver exemplos de requisições e respostas
+- Explorar os modelos de dados
+- Testar diferentes parâmetros
+
 
 ### **1.1. Autenticação**
 Para interagir com a API da Checkmob, é imprescindível estar autenticado. O primeiro passo é obter um token de acesso, que funcionará como sua credencial em todas as requisições subsequentes.
@@ -85,9 +96,7 @@ Parâmetros do corpo da requisição
 | Parâmetro | Descrição | Exemplo |
 |-----------|-----------|---------|
 | numberOfRows | Quantidade máxima de registros que deseja receber na resposta. | 500 |
-| numberOfRowsSkipped | Quantidade de registros a pular (para paginação). | 0 |
-| search | Termo para filtrar os resultados (opcional). | "" |
-| active | Filtra clientes ativos (true) ou inativos (false). | true |
+| numberOfRowsSkipped | Quantidade de registros para paginar. | 0 |
 
 
 ### **2.2. Como navegar entre páginas**
@@ -109,3 +118,34 @@ Parâmetros do corpo da requisição
 - Quando o token expirar, será necessário obter um novo token via login.
 
 - Verifique as mensagens de erro e códigos HTTP para tratar falhas na integração.
+
+### **4. Códigos de Erro**
+
+A API utiliza códigos HTTP padrão para indicar o status das requisições. Abaixo estão os principais códigos que você pode encontrar:
+
+| Código | Descrição | Ação Recomendada |
+|--------|-----------|------------------|
+| 200 | Sucesso | A requisição foi processada com sucesso |
+| 400 | Requisição Inválida | Verifique os parâmetros enviados e o formato da requisição |
+| 401 | Não Autorizado | Token inválido ou expirado. Faça login novamente para obter um novo token |
+| 429 | Muitas Requisições | Você atingiu o limite de requisições. Aguarde antes de tentar novamente |
+| 500 | Erro Interno do Servidor | Ocorreu um erro inesperado. Entre em contato com o suporte |
+
+#### **Exemplo de Resposta de Erro**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": 400,
+    "message": "Parâmetros inválidos na requisição"
+  }
+}
+```
+
+#### **Dicas para Tratamento de Erros**
+
+1. Em caso de erro, leia atentamente a mensagem e os detalhes fornecidos
+2. Para erros 401, implemente uma lógica de renovação automática do token
+3. Para erros 429, implemente um mecanismo de retry com backoff exponencial
+4. Mantenha logs dos erros para facilitar o diagnóstico de problemas
