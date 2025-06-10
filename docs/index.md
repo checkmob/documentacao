@@ -82,11 +82,12 @@ curl -X POST \
 ```
 Parâmetros do corpo da requisição
 
-Parâmetro	Descrição	Exemplo
-numberOfRows	Quantidade máxima de registros que deseja receber na resposta.	500
-numberOfRowsSkipped	Quantidade de registros a pular (útil para paginação).	0
-search	Termo para filtrar os resultados (opcional).	"" (vazio)
-active	Filtra clientes ativos (true) ou inativos (false).	true
+| Parâmetro | Descrição | Exemplo |
+|-----------|-----------|---------|
+| numberOfRows | Quantidade máxima de registros que deseja receber na resposta. | 500 |
+| numberOfRowsSkipped | Quantidade de registros a pular (para paginação). | 0 |
+| search | Termo para filtrar os resultados (opcional). | "" |
+| active | Filtra clientes ativos (true) ou inativos (false). | true |
 
 
 ### **2.2. Como navegar entre páginas**
