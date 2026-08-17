@@ -1,0 +1,2224 @@
+{
+  "info": {
+    "name": "Checkmob — API de Integração v2",
+    "description": "# API de Integração Checkmob — v2\n\nCollection oficial para explorar e testar a API v2.\n\n## Como começar\n\n1. Abra a aba **Variables** da collection e preencha `login` e `senha`.\n2. Rode **Comece aqui → 1. Gerar token**.\n3. Pronto: o token é guardado sozinho e todas as outras requisições já usam ele.\n\n## Sobre os ids dos exemplos\n\nOs corpos vêm preenchidos com ids de exemplo (`1024`, `1201`...). Troque pelos\nids da sua base — use as requisições de listagem para descobrir os seus.\n\n## Documentação\n\nGuias e conceitos: https://checkmob.github.io/documentacao/",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token_acesso}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api-integration.checkmob.com",
+      "type": "string"
+    },
+    {
+      "key": "login",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "senha",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_acesso",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_expira_em",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_cliente",
+      "value": "1024",
+      "type": "string"
+    },
+    {
+      "key": "id_usuario",
+      "value": "1201",
+      "type": "string"
+    },
+    {
+      "key": "id_registro",
+      "value": "77120",
+      "type": "string"
+    },
+    {
+      "key": "id_ordem_servico",
+      "value": "8801",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Comece aqui",
+      "description": "Autenticação e a primeira listagem.",
+      "item": [
+        {
+          "name": "1. Gerar token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o token automaticamente: as demais requisições já saem autenticadas.",
+                  "if (pm.response.code === 200) {",
+                  "    const r = pm.response.json();",
+                  "    pm.collectionVariables.set(\"token_acesso\", r.token_acesso);",
+                  "    pm.collectionVariables.set(\"token_expira_em\", r.expira_em);",
+                  "    console.log(\"Token guardado. Expira em: \" + r.expira_em);",
+                  "} else {",
+                  "    console.log(\"Falha ao autenticar: \" + pm.response.code + \" \" + pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "token"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{login}}\",\n  \"senha\": \"{{senha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Gera o token de acesso. **Rode esta requisição primeiro.**\n\nPreencha `login` e `senha` nas variáveis da collection (aba Variables).\n\nO script de teste guarda o `token_acesso` automaticamente — as demais\nrequisições já saem autenticadas, sem você copiar nada."
+          }
+        },
+        {
+          "name": "2. Listar clientes (primeira chamada)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "list"
+              ]
+            },
+            "description": "Confirma que o token funcionou. Repare no envelope `{ dados, paginacao }`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagina\": 1,\n  \"por_pagina\": 25,\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visitas (registros)",
+      "description": "O fluxo principal: agendar uma visita e depois consumir o que foi realizado.",
+      "item": [
+        {
+          "name": "Agendar visita",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "post"
+              ]
+            },
+            "description": "Cria a visita agendada. `ativo: true` envia para o aplicativo do usuário.\n\nObrigatórios: `id_cliente`, `data_inicio_esperada`, `data_conclusao_esperada`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_cliente\": 1024,\n  \"id_usuario\": 1201,\n  \"data_inicio_esperada\": \"2026-09-05T13:00:00Z\",\n  \"data_conclusao_esperada\": \"2026-09-05T17:00:00Z\",\n  \"ativo\": true,\n  \"id_objetivo\": 3,\n  \"instrucoes\": \"Conferir pressão da bomba antes de iniciar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar visitas — agenda da semana",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "list"
+              ]
+            },
+            "description": "O que está marcado e ainda não foi executado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agendado\": true,\n  \"concluido\": false,\n  \"data_agendada_apos\": \"2026-09-01T00:00:00Z\",\n  \"data_agendada_antes\": \"2026-09-07T23:59:59Z\",\n  \"ordenar\": \"data_agendada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar visitas — o que foi executado hoje",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "list"
+              ]
+            },
+            "description": "`data_inicio` é o check-in, `data_realizacao` é o check-out.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"concluido\": true,\n  \"data_realizacao_apos\": \"2026-08-17T00:00:00Z\",\n  \"data_realizacao_antes\": \"2026-08-17T23:59:59Z\",\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar visitas — sync incremental",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "list"
+              ]
+            },
+            "description": "Traz só o que mudou desde o instante informado. Guarde o maior `atualizado_em` recebido como próximo cursor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atualizado_apos\": \"2026-08-16T03:00:00Z\",\n  \"ordenar\": \"atualizado_em\",\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obter visita",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/{{id_registro}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "{{id_registro}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ajustar apontamento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/{{id_registro}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "{{id_registro}}"
+              ]
+            },
+            "description": "Campo ausente preserva o valor atual.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data_realizacao\": \"2026-09-05T15:10:00Z\",\n  \"observacao\": \"Horário ajustado conforme apontamento do técnico\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Respostas do questionário da visita",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/respostas-questionario/{{id_registro}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "respostas-questionario",
+                "{{id_registro}}"
+              ]
+            },
+            "description": "O que foi preenchido no checklist durante a visita.\n\n`404` significa que não houve questionário — não é erro de integração."
+          }
+        },
+        {
+          "name": "Respostas por ordem de serviço",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/respostas-questionario/ordem-servico/{{id_ordem_servico}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "respostas-questionario",
+                "ordem-servico",
+                "{{id_ordem_servico}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar questionários respondidos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/respostas-questionario/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "respostas-questionario",
+                "list"
+              ]
+            },
+            "description": "Aceita apenas paginação e `atualizado_apos`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atualizado_apos\": \"2026-09-01T00:00:00Z\",\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "description": "Cadastro e sincronização da base de clientes.",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "list"
+              ]
+            },
+            "description": "`busca` cobre nome, código e documento.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagina\": 1,\n  \"por_pagina\": 50,\n  \"ativo\": true,\n  \"busca\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar — sync incremental",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atualizado_apos\": \"2026-08-16T03:00:00Z\",\n  \"ordenar\": \"atualizado_em\",\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Buscar pelo código do seu ERP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "list"
+              ]
+            },
+            "description": "Evita manter tabela de-para do seu lado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigos\": [\n    \"ERP-4471\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar — por classificação",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids_segmento\": [\n    4\n  ],\n  \"ids_categoria\": [\n    2\n  ],\n  \"data_criacao_apos\": \"2026-01-01T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes"
+              ]
+            },
+            "description": "`tipo`: F = física, J = jurídica, N = estrangeiro.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"J\",\n  \"nome\": \"Padaria do Bairro LTDA\",\n  \"documento\": \"12345678000190\",\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Criar em lote (207)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/criar-lote",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "criar-lote"
+              ]
+            },
+            "description": "Máximo 500 por requisição. Resposta 207 com o resultado item a item — percorra `resultados`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientes\": [\n    {\n      \"tipo\": \"J\",\n      \"nome\": \"Padaria do Bairro LTDA\",\n      \"documento\": \"12345678000190\"\n    },\n    {\n      \"tipo\": \"F\",\n      \"nome\": \"Maria Souza\",\n      \"documento\": \"12345678901\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Atualizar parcialmente (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Substituir (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}"
+              ]
+            },
+            "description": "Campo ausente preserva o valor atual.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"J\",\n  \"nome\": \"Padaria do Bairro LTDA\",\n  \"documento\": \"12345678000190\",\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Excluir",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Endereço — obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}/endereco",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}",
+                "endereco"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Endereço — substituir",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}/endereco",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}",
+                "endereco"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logradouro\": \"Rua das Flores\",\n  \"numero\": \"150\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"São Paulo\",\n  \"estado\": \"São Paulo\",\n  \"cep\": \"01001000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Vincular contatos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/pessoas/vincular",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "pessoas",
+                "vincular"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_cliente\": 1024,\n  \"ids_pessoas\": [\n    88,\n    91\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Desvincular contatos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/pessoas/desvincular",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "pessoas",
+                "desvincular"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_cliente\": 1024,\n  \"ids_pessoas\": [\n    88\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Notas — listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}/notas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}",
+                "notas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Notas — criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/clientes/{{id_cliente}}/notas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "clientes",
+                "{{id_cliente}}",
+                "notas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nota\": \"Cliente pediu retorno na próxima semana\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pessoas (contatos)",
+      "description": "Contatos dentro dos clientes.",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pagina\": 1,\n  \"por_pagina\": 50,\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar — de um cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids_clientes\": [\n    1024\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/88",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "88"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "post"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Souza\",\n  \"email\": \"maria@padaria.com.br\",\n  \"celular\": \"11999998888\",\n  \"ids_clientes\": [\n    1024\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Atualizar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/88",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "88"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"celular\": \"11999997777\",\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ativar/inativar em lote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids_pessoas\": [\n    88,\n    91\n  ],\n  \"ativo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Vincular a clientes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/clientes/vincular",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "clientes",
+                "vincular"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_pessoa\": 88,\n  \"ids_clientes\": [\n    1024\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Endereço — obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/pessoas/88/endereco",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "pessoas",
+                "88",
+                "endereco"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ordens de serviço",
+      "description": "Para quando o trabalho envolve mais de um usuário ou mais de uma visita.",
+      "item": [
+        {
+          "name": "Listar — janela de agendamento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data_agendada_apos\": \"2026-09-01T00:00:00Z\",\n  \"data_agendada_antes\": \"2026-09-07T23:59:59Z\",\n  \"concluida\": false,\n  \"ordenar\": \"data_agendada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar — por equipe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids_usuario\": [\n    1201,\n    1202\n  ],\n  \"concluida\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/{{id_ordem_servico}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "{{id_ordem_servico}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "post"
+              ]
+            },
+            "description": "Obrigatórios: `nome` e `id_cliente`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Manutenção preventiva\",\n  \"id_cliente\": 1024,\n  \"id_tipo_servico\": 7,\n  \"inicio_agendado\": \"2026-09-02T13:00:00Z\",\n  \"data_agendada\": \"2026-09-02T17:00:00Z\",\n  \"comentario\": \"Levar filtro de reposição\",\n  \"prioridade\": 2,\n  \"ids_usuarios\": [\n    1201,\n    1202\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Substituir",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/{{id_ordem_servico}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "{{id_ordem_servico}}"
+              ]
+            },
+            "description": "Campo ausente preserva o valor atual — inclusive `ids_usuarios`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_cliente\": 1024,\n  \"data_agendada\": \"2026-09-03T17:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar status disponíveis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Alterar status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/{{id_ordem_servico}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "{{id_ordem_servico}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_status\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Visitas desta OS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/registros/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "registros",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_ordem_servico\": 8801\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Excluir em lote (207)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/ordens-servico/excluir",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "ordens-servico",
+                "excluir"
+              ]
+            },
+            "description": "Máximo 500 por requisição.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [\n    8801,\n    8802\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deslocamentos",
+      "description": "KM rodado e custo: do resumo ao percurso.",
+      "item": [
+        {
+          "name": "1. Resumo por usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/deslocamentos/usuarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "deslocamentos",
+                "usuarios",
+                "list"
+              ]
+            },
+            "description": "Filtros `aprovacao` e `pagamento` aceitam lista.\n\naprovacao: 0 aprovado · 1 desconsiderado · 2 em verificação · 3 não avaliado · 4 rejeitado\n\npagamento: 0 em aberto · 2 aguardando avaliação · 3 pago",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data_inicio\": \"2026-08-01T00:00:00Z\",\n  \"data_fim\": \"2026-08-31T23:59:59Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2. Dias de um usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/deslocamentos/dias/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "deslocamentos",
+                "dias",
+                "list"
+              ]
+            },
+            "description": "Guarde o `id_dia` de cada item para abrir os percursos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": 1201,\n  \"data_inicio\": \"2026-08-01T00:00:00Z\",\n  \"data_fim\": \"2026-08-31T23:59:59Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3. Percursos de um dia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/deslocamentos/percursos/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "deslocamentos",
+                "percursos",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": 1201,\n  \"id_dia\": 55012\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Apenas aprovado e não pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/deslocamentos/usuarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "deslocamentos",
+                "usuarios",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data_inicio\": \"2026-08-01T00:00:00Z\",\n  \"data_fim\": \"2026-08-31T23:59:59Z\",\n  \"aprovacao\": [\n    0\n  ],\n  \"pagamento\": [\n    0\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuários, grupos e segmentos",
+      "description": "Quem executa e como está organizado.",
+      "item": [
+        {
+          "name": "Usuários — listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/usuarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "usuarios",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true,\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Usuários — de um grupo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/usuarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "usuarios",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids_grupo\": [\n    12\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Usuário — obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/usuarios/{{id_usuario}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "usuarios",
+                "{{id_usuario}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Usuário — localização",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/usuarios/{{id_usuario}}/localizacao",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "usuarios",
+                "{{id_usuario}}",
+                "localizacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Grupos — listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/grupos/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "grupos",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Grupos — criar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/grupos/post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "grupos",
+                "post"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Equipe Sul\",\n  \"ids_usuarios\": [\n    1201,\n    1202\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Segmentos — listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/segmentos/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "segmentos",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Segmentos — vínculos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/segmentos/4/vinculos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "segmentos",
+                "4",
+                "vinculos"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questionários",
+      "description": "Os checklists preenchidos em campo.",
+      "item": [
+        {
+          "name": "Listar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/questionarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "questionarios",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true,\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar — vigentes hoje",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/questionarios/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "questionarios",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true,\n  \"vigente_em\": \"2026-08-17T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/questionarios/31",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "questionarios",
+                "31"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Vincular a grupo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/questionarios/31/grupos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "questionarios",
+                "31",
+                "grupos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_grupo\": 12\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Vincular a segmento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/questionarios/31/segmentos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "questionarios",
+                "31",
+                "segmentos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_segmento\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tabelas de apoio",
+      "description": "Listas de referência para preencher os campos de classificação. Carregue uma vez e guarde em cache.",
+      "item": [
+        {
+          "name": "Objetivos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/objetivos/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "objetivos",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tipos de serviço",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/tipos-servico/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "tipos-servico",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Categorias",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/categorias/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "categorias",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Etapas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/etapas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "etapas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Temperaturas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/temperaturas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "temperaturas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Setores de mercado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/setores-mercado/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "setores-mercado",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Status de registro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/status-servico/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "status-servico",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Campos personalizados — clientes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/campos-personalizados/clientes/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "campos-personalizados",
+                "clientes",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Campos personalizados — pessoas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/campos-personalizados/pessoas/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "campos-personalizados",
+                "pessoas",
+                "list"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"por_pagina\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
