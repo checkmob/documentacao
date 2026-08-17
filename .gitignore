@@ -1,0 +1,8 @@
+# Site gerado pelo mkdocs. Não versionar:
+# o `mkdocs gh-deploy` constrói e publica na branch gh-pages sozinho.
+site/
+
+# Ambiente virtual do Python
+.venv/
+venv/
+__pycache__/

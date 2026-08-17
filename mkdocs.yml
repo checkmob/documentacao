@@ -1,13 +1,75 @@
 site_name: API Checkmob
+site_description: Documentação da API de Integração da Checkmob
+docs_dir: docs
+
 theme:
   name: material
+  language: pt-BR
   palette:
-    primary: black
-    accent: black
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: black
+      toggle:
+        icon: material/weather-night
+        name: Modo escuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: black
+      toggle:
+        icon: material/weather-sunny
+        name: Modo claro
   features:
     - navigation.tabs
     - navigation.sections
     - navigation.top
-    - content.code.copy # Adicionado para permitir copiar o código
+    - navigation.indexes
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+    - search.suggest
+    - toc.follow
   icon:
     logo: ""
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Início: index.md
+  - Comece aqui:
+      - Primeira integração: comecando/primeira-integracao.md
+      - Autenticação: comecando/autenticacao.md
+  - Conceitos:
+      - Listagens e filtros: conceitos/listagens.md
+      - Paginação: conceitos/paginacao.md
+      - Sincronização incremental: conceitos/sincronizacao.md
+      - Erros: conceitos/erros.md
+      - Limites e cabeçalhos: conceitos/limites.md
+  - Guias:
+      - Agendar uma visita: guias/agendar-visita.md
+      - Consumir o que foi realizado: guias/consumir-visita.md
+      - Sincronizar clientes: guias/sincronizar-clientes.md
+      - Deslocamentos: guias/deslocamentos.md
+      - Ordens de serviço: guias/ordens-servico.md
+  - Referência:
+      - Recursos disponíveis: referencia/recursos.md
+      - Códigos de erro: referencia/codigos-erro.md
+      - Glossário: referencia/glossario.md
+  - v1 (legado): legado/v1.md

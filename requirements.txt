@@ -1,0 +1,3 @@
+# Dependências da documentação.
+# mkdocs-material já traz junto o mkdocs e o pymdown-extensions.
+mkdocs-material>=9.5,<10
