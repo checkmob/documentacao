@@ -57,17 +57,41 @@ Um comando só. Ele constrói o site, envia para a branch `gh-pages` e o GitHub 
 3. `python -m mkdocs serve` para conferir.
 4. `python -m mkdocs gh-deploy` para publicar.
 
+## Arquivos gerados
+
+Dois materiais de download são **gerados por script**, não editados à mão. Se você alterar a API ou o conteúdo das páginas, rode os geradores de novo antes de publicar. Precisa do [Node.js](https://nodejs.org/).
+
+**Collection do Postman** — 70 requisições organizadas por fluxo, com o token se preenchendo sozinho:
+
+```bash
+node scripts/gera-collection.js docs/assets/checkmob-api-v2.postman_collection.json
+```
+
+As requisições ficam declaradas dentro do próprio script. Para acrescentar uma, copie um bloco `req(...)` existente.
+
+**Contexto para IA** — a documentação inteira num `.md` único, para o cliente anexar no assistente dele:
+
+```bash
+node scripts/gera-contexto-ia.js docs docs/assets/checkmob-api-v2-contexto-ia.md
+```
+
+Esse é montado a partir das páginas em `docs/`, então acompanha o site automaticamente. A lista e a ordem das páginas ficam no topo do script, na constante `PAGINAS` — **página nova precisa ser acrescentada lá**, senão fica de fora do arquivo.
+
+> **Por que existe o `hooks.py`?** O MkDocs converte todo `.md` em página HTML. Como o contexto para IA precisa ser baixado como Markdown cru, ele é excluído da renderização (`exclude_docs` no `mkdocs.yml`) e copiado verbatim pelo hook, depois do build. Sem isso o link de download viraria uma página e quebraria.
+
 ## Estrutura
 
 ```
 docs/
-├── index.md                  Página inicial
-├── comecando/                Primeiros passos e autenticação
-├── conceitos/                O que vale para toda a API
-├── guias/                    Receitas por caso de uso
-├── referencia/               Endpoints, códigos de erro, glossário
-├── migracao/                 De-para v1 → v2
-└── legado/                   Documentação da v1
+├── index.md          Página inicial
+├── comecando/        Primeiros passos, autenticação, Postman, contexto para IA
+├── conceitos/        O que vale para toda a API
+├── guias/            Receitas por caso de uso
+├── referencia/       Endpoints, códigos de erro, glossário
+├── legado/           Documentação da v1
+└── assets/           Collection do Postman e contexto para IA (gerados)
+scripts/              Geradores dos arquivos de assets/
+hooks.py              Copia o contexto para IA como Markdown cru
 ```
 
 ## Recursos do tema usados

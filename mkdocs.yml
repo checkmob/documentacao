@@ -34,6 +34,14 @@ theme:
   icon:
     logo: ""
 
+# O contexto para IA é Markdown cru para download, não uma página do site.
+# Fica fora da renderização e é copiado verbatim pelo hook.
+exclude_docs: |
+  assets/checkmob-api-v2-contexto-ia.md
+
+hooks:
+  - hooks.py
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -60,6 +68,7 @@ nav:
       - Primeira integração: comecando/primeira-integracao.md
       - Autenticação: comecando/autenticacao.md
       - Collection do Postman: comecando/postman.md
+      - Contexto para IA: comecando/contexto-ia.md
   - Conceitos:
       - Listagens e filtros: conceitos/listagens.md
       - Paginação: conceitos/paginacao.md

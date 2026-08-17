@@ -7,6 +7,8 @@ Esta API permite que o seu sistema converse com a Checkmob: **mandar trabalho pa
 
     Prefere testar clicando? Baixe a [collection do Postman](comecando/postman.md) — 70 requisições prontas, com o token se preenchendo sozinho.
 
+    Usa IA para programar? Baixe o [contexto para IA](comecando/contexto-ia.md) e anexe à sua conversa — o modelo passa a conhecer a API de verdade, em vez de inventar campo.
+
 ## Como esta documentação funciona
 
 | Onde | Para quê |
