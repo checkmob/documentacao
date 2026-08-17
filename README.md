@@ -72,12 +72,12 @@ As requisições ficam declaradas dentro do próprio script. Para acrescentar um
 **Contexto para IA** — a documentação inteira num `.md` único, para o cliente anexar no assistente dele:
 
 ```bash
-node scripts/gera-contexto-ia.js docs docs/assets/checkmob-api-v2-contexto-ia.md
+node scripts/gera-contexto-ia.js docs docs/assets/checkmob-api-v2-contexto-ia.txt
 ```
 
 Esse é montado a partir das páginas em `docs/`, então acompanha o site automaticamente. A lista e a ordem das páginas ficam no topo do script, na constante `PAGINAS` — **página nova precisa ser acrescentada lá**, senão fica de fora do arquivo.
 
-> **Por que existe o `hooks.py`?** O MkDocs converte todo `.md` em página HTML. Como o contexto para IA precisa ser baixado como Markdown cru, ele é excluído da renderização (`exclude_docs` no `mkdocs.yml`) e copiado verbatim pelo hook, depois do build. Sem isso o link de download viraria uma página e quebraria.
+> **Por que o arquivo é servido como `.txt`?** O MkDocs converte todo `.md` em página HTML e reescreve links para `.md` como se fossem páginas — o botão de download apontaria para uma página inexistente. Com `.txt` o arquivo é copiado verbatim e o link funciona; o atributo `download` faz o navegador salvar como `.md`.
 
 ## Estrutura
 
@@ -91,7 +91,6 @@ docs/
 ├── legado/           Documentação da v1
 └── assets/           Collection do Postman e contexto para IA (gerados)
 scripts/              Geradores dos arquivos de assets/
-hooks.py              Copia o contexto para IA como Markdown cru
 ```
 
 ## Recursos do tema usados

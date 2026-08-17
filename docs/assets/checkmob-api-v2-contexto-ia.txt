@@ -57,6 +57,8 @@ Vá direto para a primeira integração — token e primeira listagem em três c
 
 Prefere testar clicando? Baixe a collection do Postman — 70 requisições prontas, com o token se preenchendo sozinho.
 
+Usa IA para programar? Baixe o contexto para IA e anexe à sua conversa — o modelo passa a conhecer a API de verdade, em vez de inventar campo.
+
 ### Como esta documentação funciona
 
 | Onde | Para quê |

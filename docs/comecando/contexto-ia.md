@@ -2,7 +2,9 @@
 
 Um arquivo único com **toda** a documentação da API — contrato, convenções, fluxos e endpoints — para você entregar ao assistente de IA que já usa no dia a dia.
 
-[:material-download: Baixar o arquivo](../assets/checkmob-api-v2-contexto-ia.md){ .md-button .md-button--primary download="checkmob-api-v2-contexto-ia.md" }
+[:material-download: Baixar o arquivo](../assets/checkmob-api-v2-contexto-ia.txt){ .md-button .md-button--primary download="checkmob-api-v2-contexto-ia.md" }
+
+O download salva como `.md`. O arquivo é servido com extensão `.txt` para abrir direto no navegador quando você só quer dar uma olhada — o conteúdo é Markdown nos dois casos.
 
 Cerca de 2.100 linhas, ~15 mil tokens. Cabe folgado na janela de contexto de qualquer modelo atual.
 
