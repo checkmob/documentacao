@@ -5,6 +5,8 @@ Esta API permite que o seu sistema converse com a Checkmob: **mandar trabalho pa
 !!! tip "Já quer iniciar?"
     Vá direto para a [primeira integração](comecando/primeira-integracao.md) — token e primeira listagem em três comandos.
 
+    Prefere testar clicando? Baixe a [collection do Postman](comecando/postman.md) — 70 requisições prontas, com o token se preenchendo sozinho.
+
 ## Como esta documentação funciona
 
 | Onde | Para quê |

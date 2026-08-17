@@ -44,6 +44,9 @@ markdown_extensions:
       permalink: true
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.highlight:
@@ -56,6 +59,7 @@ nav:
   - Comece aqui:
       - Primeira integração: comecando/primeira-integracao.md
       - Autenticação: comecando/autenticacao.md
+      - Collection do Postman: comecando/postman.md
   - Conceitos:
       - Listagens e filtros: conceitos/listagens.md
       - Paginação: conceitos/paginacao.md
